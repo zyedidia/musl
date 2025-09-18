@@ -38,21 +38,17 @@ memset:
 	str     val, [dstend, -8]
 	ret
 	nop
-.p2align 4
 1:      tbz     count, 2, 2f
 	str     valw, [dstin]
 	str     valw, [dstend, -4]
 	ret
-	.p2align 4
 2:      cbz     count, 3f
 	strb    valw, [dstin]
 	tbz     count, 1, 3f
 	strh    valw, [dstend, -2]
-.p2align 4
 3:      ret
 
 	/* Set 17..96 bytes.  */
-.p2align 4
 .Lset_medium:
 	str     q0, [dstin]
 	tbnz    count, 6, .Lset96
@@ -104,12 +100,10 @@ memset:
 	ret
 #endif
 
-.p2align 4
 .Lno_zva:
 	sub     count, dstend, dst      /* Count is 16 too large.  */
 	sub     dst, dst, 16            /* Dst is biased by -32.  */
 	sub     count, count, 64 + 16   /* Adjust count and bias for loop.  */
-.p2align 4
 .Lno_zva_loop:
 	stp     q0, q0, [dst, 32]
 	stp     q0, q0, [dst, 64]!

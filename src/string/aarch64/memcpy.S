@@ -70,7 +70,6 @@ memcpy:
 	ret
 
 	/* Copy 8-15 bytes.  */
-.p2align 4
 .Lcopy16:
 	tbz     count, 3, .Lcopy8
 	ldr     A_l, [src]
@@ -79,7 +78,7 @@ memcpy:
 	str     A_h, [dstend, -8]
 	ret
 
-	.p2align 4
+	.p2align 3
 	/* Copy 4-7 bytes.  */
 .Lcopy8:
 	tbz     count, 2, .Lcopy4
@@ -90,7 +89,6 @@ memcpy:
 	ret
 
 	/* Copy 0..3 bytes using a branchless sequence.  */
-.p2align 4
 .Lcopy4:
 	cbz     count, .Lcopy0
 	lsr     tmp1, count, 1
@@ -100,7 +98,6 @@ memcpy:
 	strb    A_lw, [dstin]
 	strb    B_lw, [dstin, tmp1]
 	strb    C_lw, [dstend, -1]
-.p2align 4
 .Lcopy0:
 	ret
 
@@ -130,7 +127,6 @@ memcpy:
 	ldp     H_l, H_h, [srcend, -48]
 	stp     G_l, G_h, [dstend, -64]
 	stp     H_l, H_h, [dstend, -48]
-.p2align 4
 .Lcopy96:
 	stp     A_l, A_h, [dstin]
 	stp     B_l, B_h, [dstin, 16]
@@ -159,7 +155,6 @@ memcpy:
 	subs    count, count, 128 + 16  /* Test and readjust count.  */
 	b.ls    .Lcopy64_from_end
 
-.p2align 4
 .Lloop64:
 	stp     A_l, A_h, [dst, 16]
 	ldp     A_l, A_h, [src, 16]
@@ -173,7 +168,6 @@ memcpy:
 	b.hi    .Lloop64
 
 	/* Write the last iteration and copy 64 bytes from the end.  */
-.p2align 4
 .Lcopy64_from_end:
 	ldp     E_l, E_h, [srcend, -64]
 	stp     A_l, A_h, [dst, 16]
