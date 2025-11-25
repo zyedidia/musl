@@ -12,7 +12,9 @@ setjmp:
 	mov %rbp,8(%rdi)
 	mov %r12,16(%rdi)
 	mov %r13,24(%rdi)
+#ifndef __LFI__
 	mov %r14,32(%rdi)
+#endif
 	mov %r15,40(%rdi)
 	lea 8(%rsp),%rdx        /* this is our rsp WITHOUT current ret addr */
 	mov %rdx,48(%rdi)
