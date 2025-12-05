@@ -8,6 +8,7 @@
 .hidden __clone
 .type   __clone,%function
 __clone:
+	bti c
 	// align stack and save func,arg
 	and x1,x1,#-16
 	stp x0,x3,[x1,#-16]!

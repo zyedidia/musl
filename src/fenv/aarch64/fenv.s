@@ -1,6 +1,7 @@
 .global fegetround
 .type fegetround,%function
 fegetround:
+	bti c
 	mrs x0, fpcr
 	and w0, w0, #0xc00000
 	ret
@@ -9,6 +10,7 @@ fegetround:
 .hidden __fesetround
 .type __fesetround,%function
 __fesetround:
+	bti c
 	mrs x1, fpcr
 	bic w1, w1, #0xc00000
 	orr w1, w1, w0
@@ -19,6 +21,7 @@ __fesetround:
 .global fetestexcept
 .type fetestexcept,%function
 fetestexcept:
+	bti c
 	and w0, w0, #0x1f
 	mrs x1, fpsr
 	and w0, w0, w1
@@ -27,6 +30,7 @@ fetestexcept:
 .global feclearexcept
 .type feclearexcept,%function
 feclearexcept:
+	bti c
 	and w0, w0, #0x1f
 	mrs x1, fpsr
 	bic w1, w1, w0
@@ -37,6 +41,7 @@ feclearexcept:
 .global feraiseexcept
 .type feraiseexcept,%function
 feraiseexcept:
+	bti c
 	and w0, w0, #0x1f
 	mrs x1, fpsr
 	orr w1, w1, w0
@@ -47,6 +52,7 @@ feraiseexcept:
 .global fegetenv
 .type fegetenv,%function
 fegetenv:
+	bti c
 	mrs x1, fpcr
 	mrs x2, fpsr
 	stp w1, w2, [x0]
@@ -57,6 +63,7 @@ fegetenv:
 .global fesetenv
 .type fesetenv,%function
 fesetenv:
+	bti c
 	mov x1, #0
 	mov x2, #0
 	cmn x0, #1

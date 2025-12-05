@@ -111,7 +111,10 @@ return 1
 fi
 }
 
-
+get_macro_value () {
+printf "#ifdef $1\n$1_VALUE=$1\n#else\n$1_VALUE=$2\n#endif\n" \
+| ${CC} ${CFLAGS} -E - | grep "$1_VALUE" | cut -d'=' -f2-
+}
 
 # Beginning of actual script
 
@@ -671,6 +674,12 @@ fi
 
 if test "$ARCH" = "aarch64" ; then
 trycppif __AARCH64EB__ "$t" && SUBARCH=${SUBARCH}_be
+printf "Checking if bti is enabled..."
+aarch64_bti=$(get_macro_value __ARM_FEATURE_BTI_DEFAULT 0)
+printf " $aarch64_bti\n"
+printf "Checking if pac is enabled..."
+aarch64_pac=$(get_macro_value __ARM_FEATURE_PAC_DEFAULT 0)
+printf " $aarch64_pac\n"
 fi
 
 if test "$ARCH" = "loongarch64" ; then
@@ -830,6 +839,8 @@ ALL_TOOLS = $tools
 TOOL_LIBS = $tool_libs
 ADD_CFI = $ADD_CFI
 MALLOC_DIR = $malloc_dir
+AARCH64_BTI = $aarch64_bti
+AARCH64_PAC = $aarch64_pac
 EOF
 test "x$static" = xno && echo "STATIC_LIBS ="
 test "x$shared" = xno && echo "SHARED_LIBS ="

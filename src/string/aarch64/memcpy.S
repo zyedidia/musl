@@ -53,6 +53,7 @@
 .global memcpy
 .type memcpy,%function
 memcpy:
+	bti c
 	add     srcend, src, count
 	add     dstend, dstin, count
 	cmp     count, 128

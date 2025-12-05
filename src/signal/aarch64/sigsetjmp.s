@@ -4,6 +4,7 @@
 .type __sigsetjmp,%function
 sigsetjmp:
 __sigsetjmp:
+	bti c
 	cbz x1,setjmp
 
 	str x30,[x0,#176]
@@ -11,6 +12,7 @@ __sigsetjmp:
 	mov x19,x0
 
 	bl setjmp
+	bti j
 
 	mov w1,w0
 	mov x0,x19

@@ -7,6 +7,7 @@
 __setjmp:
 _setjmp:
 setjmp:
+	bti c
 	// IHI0055B_aapcs64.pdf 5.1.1, 5.1.2 callee saved registers
 	stp x19, x20, [x0,#0]
 	stp x21, x22, [x0,#16]

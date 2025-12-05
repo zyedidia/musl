@@ -1,6 +1,7 @@
 .global vfork
 .type vfork,%function
 vfork:
+	bti c
 	mov x8, 220    // SYS_clone
 	mov x0, 0x4111 // SIGCHLD | CLONE_VM | CLONE_VFORK
 	mov x1, 0

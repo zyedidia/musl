@@ -3,6 +3,9 @@ __asm__(
 ".global " START "\n"
 ".type " START ",%function\n"
 START ":\n"
+#if defined(__ARM_FEATURE_BTI_DEFAULT)
+"	hint 34\n" /* bti c */
+#endif
 "	mov x29, #0\n"
 "	mov x30, #0\n"
 "	mov x0, sp\n"

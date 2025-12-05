@@ -6,6 +6,7 @@
 .hidden __tlsdesc_static
 .type __tlsdesc_static,@function
 __tlsdesc_static:
+	bti c
 	ldr x0,[x0,#8]
 	ret
 
@@ -19,6 +20,7 @@ __tlsdesc_static:
 .hidden __tlsdesc_dynamic
 .type __tlsdesc_dynamic,@function
 __tlsdesc_dynamic:
+	bti c
 	stp x1,x2,[sp,#-16]!
 	mrs x1,tpidr_el0      // tp
 	ldr x0,[x0,#8]        // p

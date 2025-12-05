@@ -16,6 +16,7 @@
 .type __syscall_cp_asm,%function
 __syscall_cp_asm:
 __cp_begin:
+	bti c
 	ldr w0,[x0]
 	cbnz w0,__cp_cancel
 	mov x8,x1

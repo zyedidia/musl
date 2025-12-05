@@ -23,6 +23,7 @@
 .type memset,%function
 memset:
 
+	bti c
 	dup     v0.16B, valw
 	add     dstend, dstin, count
 

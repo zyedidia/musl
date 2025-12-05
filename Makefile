@@ -132,19 +132,30 @@ $(CRT_OBJS): CFLAGS_ALL += -DCRT
 $(LOBJS) $(LDSO_OBJS): CFLAGS_ALL += -fPIC
 
 CC_CMD = $(CC) $(CFLAGS_ALL) -c -o $@ $<
+CCS_CMD = $(CC_CMD)
+AS_CMD = $(CC_CMD)
+
+AWK_OPTS :=
+ifeq ($(ADD_CFI),yes)
+	AWK_OPTS += -f $(srcdir)/tools/add-cfi.common.awk -f $(srcdir)/tools/add-cfi.$(ARCH).awk
+endif
+
+ifeq ($(ARCH),aarch64)
+  AWK_OPTS += -f $(srcdir)/tools/pac-bti-aarch64.awk
+  AWK_OPTS += -vaarch64_pac=$(AARCH64_PAC) -vaarch64_bti=$(AARCH64_BTI)
+endif
 
 # Choose invocation of assembler to be used
-ifeq ($(ADD_CFI),yes)
-	AS_CMD = LC_ALL=C awk -f $(srcdir)/tools/add-cfi.common.awk -f $(srcdir)/tools/add-cfi.$(ARCH).awk $< | $(CC) $(CFLAGS_ALL) -x assembler -c -o $@ -
-else
-	AS_CMD = $(CC_CMD)
+ifneq ($(AWK_OPTS),)
+  AS_CMD = LC_ALL=C awk $(AWK_OPTS) $< | $(CC) $(CFLAGS_ALL) -x assembler -c -o $@ -
+	CCS_CMD = LC_ALL=C awk $(AWK_OPTS) $< | $(CC) $(CFLAGS_ALL) -x assembler-with-cpp -c -o $@ -
 endif
 
 obj/%.o: $(srcdir)/%.s
 	$(AS_CMD)
 
 obj/%.o: $(srcdir)/%.S
-	$(CC_CMD)
+	$(CCS_CMD)
 
 obj/%.o: $(srcdir)/%.c $(GENH) $(IMPH)
 	$(CC_CMD)
@@ -153,7 +164,7 @@ obj/%.lo: $(srcdir)/%.s
 	$(AS_CMD)
 
 obj/%.lo: $(srcdir)/%.S
-	$(CC_CMD)
+	$(CCS_CMD)
 
 obj/%.lo: $(srcdir)/%.c $(GENH) $(IMPH)
 	$(CC_CMD)
