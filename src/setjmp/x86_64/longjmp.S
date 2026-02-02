@@ -14,5 +14,9 @@ longjmp:
 	mov 24(%rdi),%r13
 	mov 32(%rdi),%r14
 	mov 40(%rdi),%r15
+#ifdef SHADOW_CALL_STACK
+	mov 88(%rdi),%rdx
+	mov %rdx,%gs:0
+#endif
 	mov 48(%rdi),%rsp
 	jmp *56(%rdi)           /* goto saved address without altering rsp */

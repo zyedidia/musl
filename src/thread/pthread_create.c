@@ -162,6 +162,10 @@ _Noreturn void __pthread_exit(void *result)
 
 		/* The following call unmaps the thread's stack mapping
 		 * and then exits without touching the stack. */
+#ifdef SHADOW_CALL_STACK
+		if (self->scs_base)
+			__syscall(SYS_munmap, self->scs_base, self->scs_size);
+#endif
 		__unmapself(self->map_base, self->map_size);
 	}
 
@@ -189,6 +193,9 @@ struct start_args {
 	void *start_arg;
 	volatile int control;
 	unsigned long sig_mask[_NSIG/8/sizeof(long)];
+#ifdef SHADOW_CALL_STACK
+	void *shadow_call_stack;
+#endif
 };
 
 static int start(void *p)
@@ -203,6 +210,13 @@ static int start(void *p)
 			for (;;) __syscall(SYS_exit, 0);
 		}
 	}
+#ifdef SHADOW_CALL_STACK
+#ifdef __aarch64__
+	__asm__ __volatile__("mov x18, %0" : : "r"(args->shadow_call_stack));
+#elif defined(__x86_64__)
+	__syscall(158, 0x1001, args->shadow_call_stack);
+#endif
+#endif
 	__syscall(SYS_rt_sigprocmask, SIG_SETMASK, &args->sig_mask, 0, _NSIG/8);
 	__pthread_exit(args->start_func(args->start_arg));
 	return 0;
@@ -211,6 +225,13 @@ static int start(void *p)
 static int start_c11(void *p)
 {
 	struct start_args *args = p;
+#ifdef SHADOW_CALL_STACK
+#ifdef __aarch64__
+	__asm__ __volatile__("mov x18, %0" : : "r"(args->shadow_call_stack));
+#elif defined(__x86_64__)
+	__syscall(158, 0x1001, args->shadow_call_stack);
+#endif
+#endif
 	int (*start)(void*) = (int(*)(void*)) args->start_func;
 	__pthread_exit((void *)(uintptr_t)start(args->start_arg));
 	return 0;
@@ -328,6 +349,22 @@ int __pthread_create(pthread_t *restrict res, const pthread_attr_t *restrict att
 	new->canary = self->canary;
 	new->sysinfo = self->sysinfo;
 
+#ifdef SHADOW_CALL_STACK
+	{
+		void *scs = __mmap(0, SCS_SIZE, PROT_READ|PROT_WRITE,
+				   MAP_PRIVATE|MAP_ANON, -1, 0);
+		if (scs == MAP_FAILED) {
+			if (map) __munmap(map, size);
+			goto fail;
+		}
+		new->scs_base = scs;
+		new->scs_size = SCS_SIZE;
+#ifdef __x86_64__
+		new->scs_ptr = scs;
+#endif
+	}
+#endif
+
 	/* Setup argument structure for the new thread on its stack.
 	 * It's safe to access from the caller only until the thread
 	 * list is unlocked. */
@@ -337,6 +374,13 @@ int __pthread_create(pthread_t *restrict res, const pthread_attr_t *restrict att
 	args->start_func = entry;
 	args->start_arg = arg;
 	args->control = attr._a_sched ? 1 : 0;
+#ifdef SHADOW_CALL_STACK
+#ifdef __aarch64__
+	args->shadow_call_stack = new->scs_base;
+#elif defined(__x86_64__)
+	args->shadow_call_stack = &new->scs_ptr;
+#endif
+#endif
 
 	/* Application signals (but not the synccall signal) must be
 	 * blocked before the thread list lock can be taken, to ensure
@@ -382,6 +426,9 @@ int __pthread_create(pthread_t *restrict res, const pthread_attr_t *restrict att
 	__release_ptc();
 
 	if (ret < 0) {
+#ifdef SHADOW_CALL_STACK
+		if (new->scs_base) __munmap(new->scs_base, new->scs_size);
+#endif
 		if (map) __munmap(map, size);
 		return -ret;
 	}

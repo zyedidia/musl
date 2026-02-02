@@ -34,6 +34,7 @@ Optional features:
   --enable-wrapper=...    build given musl toolchain wrapper [auto]
   --disable-shared        inhibit building shared library [enabled]
   --disable-static        inhibit building static library [enabled]
+  --enable-shadow-call-stack  enable shadow call stack on aarch64 [disabled]
 
 Optional packages:
   --with-malloc=...       choose malloc implementation [mallocng]
@@ -143,6 +144,7 @@ wrapper=auto
 gcc_wrapper=no
 clang_wrapper=no
 malloc_dir=mallocng
+shadow_call_stack=no
 
 for arg ; do
 case "$arg" in
@@ -173,6 +175,8 @@ case "$arg" in
 --enable-gcc-wrapper|--enable-gcc-wrapper=yes) wrapper=yes ; gcc_wrapper=yes ;;
 --disable-gcc-wrapper|--enable-gcc-wrapper=no) wrapper=no ;;
 --with-malloc=*) malloc_dir=${arg#*=} ;;
+--enable-shadow-call-stack|--enable-shadow-call-stack=yes) shadow_call_stack=yes ;;
+--disable-shadow-call-stack|--enable-shadow-call-stack=no) shadow_call_stack=no ;;
 --enable-*|--disable-*|--with-*|--without-*|--*dir=*) ;;
 --host=*|--target=*) target=${arg#*=} ;;
 --build=*) build=${arg#*=} ;;
@@ -671,6 +675,16 @@ fi
 
 if test "$ARCH" = "aarch64" ; then
 trycppif __AARCH64EB__ "$t" && SUBARCH=${SUBARCH}_be
+fi
+
+if test "$shadow_call_stack" = "yes" ; then
+if test "$ARCH" != "aarch64" && test "$ARCH" != "x86_64" ; then
+fail "$0: error: shadow call stack is only supported on aarch64 and x86_64"
+fi
+if test "$ARCH" = "aarch64" ; then
+tryflag CFLAGS_AUTO -ffixed-x18
+fi
+CFLAGS_AUTO="$CFLAGS_AUTO -DSHADOW_CALL_STACK"
 fi
 
 if test "$ARCH" = "loongarch64" ; then

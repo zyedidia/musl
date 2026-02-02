@@ -18,5 +18,9 @@ setjmp:
 	mov %rdx,48(%rdi)
 	mov (%rsp),%rdx         /* save return addr ptr for new rip */
 	mov %rdx,56(%rdi)
+#ifdef SHADOW_CALL_STACK
+	mov %gs:0,%rdx
+	mov %rdx,88(%rdi)
+#endif
 	xor %eax,%eax           /* always return 0 */
 	ret

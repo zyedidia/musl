@@ -11,6 +11,9 @@ longjmp:
 	ldp x25, x26, [x0,#48]
 	ldp x27, x28, [x0,#64]
 	ldp x29, x30, [x0,#80]
+#ifdef SHADOW_CALL_STACK
+	ldr x18, [x0,#96]
+#endif
 	ldr x2, [x0,#104]
 	mov sp, x2
 	ldp d8 , d9, [x0,#112]

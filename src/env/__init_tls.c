@@ -24,6 +24,23 @@ int __init_tp(void *p)
 	td->robust_list.head = &td->robust_list.head;
 	td->sysinfo = __sysinfo;
 	td->next = td->prev = td;
+#ifdef SHADOW_CALL_STACK
+	{
+		static void *main_scs_base;
+		if (!main_scs_base) {
+			main_scs_base = (void *)__syscall(SYS_mmap, 0, SCS_SIZE,
+				PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+		}
+		td->scs_base = main_scs_base;
+		td->scs_size = SCS_SIZE;
+#ifdef __aarch64__
+		__asm__ __volatile__("mov x18, %0" : : "r"(main_scs_base));
+#elif defined(__x86_64__)
+		td->scs_ptr = main_scs_base;
+		__syscall(158, 0x1001, &td->scs_ptr);
+#endif
+	}
+#endif
 	return 0;
 }
 

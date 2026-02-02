@@ -14,6 +14,9 @@ setjmp:
 	stp x25, x26, [x0,#48]
 	stp x27, x28, [x0,#64]
 	stp x29, x30, [x0,#80]
+#ifdef SHADOW_CALL_STACK
+	str x18, [x0,#96]
+#endif
 	mov x2, sp
 	str x2, [x0,#104]
 	stp  d8,  d9, [x0,#112]

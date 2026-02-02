@@ -21,6 +21,9 @@ static int __pthread_timedjoin_np(pthread_t t, void **res, const struct timespec
 	if (r == ETIMEDOUT || r == EINVAL) return r;
 	__tl_sync(t);
 	if (res) *res = t->result;
+#ifdef SHADOW_CALL_STACK
+	if (t->scs_base) __munmap(t->scs_base, t->scs_size);
+#endif
 	if (t->map_base) __munmap(t->map_base, t->map_size);
 	return 0;
 }

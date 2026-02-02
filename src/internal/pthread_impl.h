@@ -58,6 +58,13 @@ struct pthread {
 	volatile int killlock[1];
 	char *dlerror_buf;
 	void *stdio_locks;
+#ifdef SHADOW_CALL_STACK
+	void *scs_base;
+	size_t scs_size;
+#ifdef __x86_64__
+	void *scs_ptr;
+#endif
+#endif
 
 	/* Part 3 -- the positions of these fields relative to
 	 * the end of the structure is external and internal ABI. */
@@ -196,6 +203,10 @@ extern hidden unsigned __default_guardsize;
 
 #define DEFAULT_STACK_SIZE 131072
 #define DEFAULT_GUARD_SIZE 8192
+
+#ifdef SHADOW_CALL_STACK
+#define SCS_SIZE 8192
+#endif
 
 #define DEFAULT_STACK_MAX (8<<20)
 #define DEFAULT_GUARD_MAX (1<<20)
