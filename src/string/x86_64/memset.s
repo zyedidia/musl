@@ -1,6 +1,7 @@
 .global memset
 .type memset,@function
 memset:
+  endbr64
 	movzbq %sil,%rax
 	mov $0x101010101010101,%r8
 	imul %r8,%rax

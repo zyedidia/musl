@@ -4,6 +4,7 @@
 .type memcpy,@function
 memcpy:
 __memcpy_fwd:
+  endbr64
 	mov %rdi,%rax
 	cmp $8,%rdx
 	jc 1f
