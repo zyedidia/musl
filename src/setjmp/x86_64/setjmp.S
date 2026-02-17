@@ -15,7 +15,7 @@ setjmp:
 	mov %rbp,8(%rdi)
 	mov %r12,16(%rdi)
 	mov %r13,24(%rdi)
-#if defined(__LFI__) && defined(__LFI_FAKE_HW_SHSTK__)
+#if defined(__LFI__) && __LFI_FAKE_HW_SHSTK__
 	/* Fake hw-shstk: no shadow stack to save. The software SCS is not
 	 * maintained in hw-shstk mode, and there is no real hardware shadow
 	 * stack. Slot 32 of jmp_buf is unused. */
@@ -31,7 +31,7 @@ setjmp:
 	lea 8(%rsp),%rdx        /* this is our rsp WITHOUT current ret addr */
 	mov %rdx,48(%rdi)
 	mov (%rsp),%rdx         /* save return addr ptr for new rip */
-#if defined(__LFI__) && !defined(__LFI_FAKE_HW_SHSTK__)
+#if defined(__LFI__) && !__LFI_FAKE_HW_SHSTK__
 	add $31, %rdx           /* round up to .Lret (32-byte aligned) */
 	and $-32, %rdx
 #endif

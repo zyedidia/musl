@@ -11,7 +11,7 @@ longjmp:
 	xor %eax,%eax
 	cmp $1,%esi             /* CF = val ? 0 : 1 */
 	adc %esi,%eax           /* eax = val + !val */
-#if defined(__LFI__) && defined(__LFI_HW_SHSTK__) && defined(__LFI_FAKE_HW_SHSTK__)
+#if defined(__LFI__) && __LFI_FAKE_HW_SHSTK__
 	/* Fake hw-shstk: no shadow stack to unwind. */
 #elif defined(__LFI__)
 	/* Software SCS unwind: compute how many entries to pop from
@@ -44,7 +44,7 @@ longjmp:
 	mov 32(%rdi),%r14
 #endif
 	mov 40(%rdi),%r15
-#if defined(__LFI__) && defined(__LFI_FAKE_HW_SHSTK__)
+#if defined(__LFI__) && __LFI_FAKE_HW_SHSTK__
 	/* With hardware shadow stack, no .Lret epilogue exists.
 	 * Restore rsp directly and jump to the saved return address.
 	 * The jump must bypass forward-edge CFI since the return site
