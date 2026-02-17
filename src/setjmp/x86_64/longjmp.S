@@ -1,5 +1,5 @@
-#define __LFI_HW_SHSTK__ 1
-#define __LFI_FAKE_HW_SHSTK__ 1
+#define __LFI_FAKE_HW_SHSTK__ 0
+#define __LFI__ 1
 
 /* Copyright 2011-2012 Nicholas J. Kain, licensed under standard MIT license */
 .global _longjmp
@@ -13,28 +13,6 @@ longjmp:
 	adc %esi,%eax           /* eax = val + !val */
 #if defined(__LFI__) && defined(__LFI_HW_SHSTK__) && defined(__LFI_FAKE_HW_SHSTK__)
 	/* Fake hw-shstk: no shadow stack to unwind. */
-#elif defined(__LFI__) && defined(__LFI_HW_SHSTK__)
-	/* Hardware shadow stack unwind: use rdsspq/incsspq to pop
-	 * entries from the hardware shadow stack to reach the state
-	 * after setjmp returned. saved_SSP points to setjmp's return
-	 * entry; we want one past it (+8), matching the post-return state. */
-	mov %eax, %ecx           /* save return value */
-	xor %eax, %eax
-	rdsspq %rax              /* current SSP */
-	mov 32(%rdi), %rdx       /* saved SSP from jmp_buf */
-	add $8, %rdx             /* target: past setjmp's return entry */
-	sub %rax, %rdx           /* byte delta */
-	shr $3, %rdx             /* entry count */
-.Lincsspq_loop:
-	cmp $255, %rdx
-	jbe .Lincsspq_done
-	mov $255, %eax
-	incsspq %rax
-	sub $255, %rdx
-	jmp .Lincsspq_loop
-.Lincsspq_done:
-	incsspq %rdx             /* pop remaining entries */
-	mov %ecx, %eax           /* restore return value */
 #elif defined(__LFI__)
 	/* Software SCS unwind: compute how many entries to pop from
 	 * the shadow call stack to reach the state after setjmp returned.
@@ -66,7 +44,7 @@ longjmp:
 	mov 32(%rdi),%r14
 #endif
 	mov 40(%rdi),%r15
-#if defined(__LFI__) && defined(__LFI_HW_SHSTK__)
+#if defined(__LFI__) && defined(__LFI_FAKE_HW_SHSTK__)
 	/* With hardware shadow stack, no .Lret epilogue exists.
 	 * Restore rsp directly and jump to the saved return address.
 	 * The jump must bypass forward-edge CFI since the return site
