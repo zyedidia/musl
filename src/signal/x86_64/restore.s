@@ -1,7 +1,7 @@
-	nop
 .global __restore_rt
 .hidden __restore_rt
 .type __restore_rt,@function
+.p2align 5
 __restore_rt:
 	mov $15, %rax
 	syscall
