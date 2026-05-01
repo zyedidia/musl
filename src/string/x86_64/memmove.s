@@ -1,6 +1,10 @@
+#include "ibt.s"
+
 .global memmove
 .type memmove,@function
+ALIGN_ENDBRANCH64
 memmove:
+	ENDBRANCH64
 	mov %rdi,%rax
 	sub %rsi,%rax
 	cmp %rdx,%rax

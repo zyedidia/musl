@@ -1,7 +1,11 @@
+#include "ibt.s"
+
 .global feclearexcept
 .type feclearexcept,@function
+ALIGN_ENDBRANCH64
 feclearexcept:
-		# maintain exceptions in the sse mxcsr, clear x87 exceptions
+	ENDBRANCH64
+		/* maintain exceptions in the sse mxcsr, clear x87 exceptions */
 	mov %edi,%ecx
 	and $0x3f,%ecx
 	fnstsw %ax
@@ -21,7 +25,9 @@ feclearexcept:
 
 .global feraiseexcept
 .type feraiseexcept,@function
+ALIGN_ENDBRANCH64
 feraiseexcept:
+	ENDBRANCH64
 	and $0x3f,%edi
 	stmxcsr -8(%rsp)
 	or %edi,-8(%rsp)
@@ -32,7 +38,9 @@ feraiseexcept:
 .global __fesetround
 .hidden __fesetround
 .type __fesetround,@function
+ALIGN_ENDBRANCH64
 __fesetround:
+	ENDBRANCH64
 	push %rax
 	xor %eax,%eax
 	mov %edi,%ecx
@@ -50,7 +58,9 @@ __fesetround:
 
 .global fegetround
 .type fegetround,@function
+ALIGN_ENDBRANCH64
 fegetround:
+	ENDBRANCH64
 	push %rax
 	stmxcsr (%rsp)
 	pop %rax
@@ -60,7 +70,9 @@ fegetround:
 
 .global fegetenv
 .type fegetenv,@function
+ALIGN_ENDBRANCH64
 fegetenv:
+	ENDBRANCH64
 	xor %eax,%eax
 	fnstenv (%rdi)
 	stmxcsr 28(%rdi)
@@ -68,7 +80,9 @@ fegetenv:
 
 .global fesetenv
 .type fesetenv,@function
+ALIGN_ENDBRANCH64
 fesetenv:
+	ENDBRANCH64
 	xor %eax,%eax
 	inc %rdi
 	jz 1f
@@ -87,7 +101,9 @@ fesetenv:
 
 .global fetestexcept
 .type fetestexcept,@function
+ALIGN_ENDBRANCH64
 fetestexcept:
+	ENDBRANCH64
 	and $0x3f,%edi
 	push %rax
 	stmxcsr (%rsp)

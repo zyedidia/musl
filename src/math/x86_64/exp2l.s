@@ -1,6 +1,10 @@
+#include "ibt.s"
+
 .global expm1l
 .type expm1l,@function
+ALIGN_ENDBRANCH64
 expm1l:
+	ENDBRANCH64
 	fldt 8(%rsp)
 	fldl2e
 	fmulp
@@ -9,7 +13,7 @@ expm1l:
 	fucomip %st(1),%st
 	fld1
 	jb 1f
-		# x*log2e <= -65, return -1 without underflow
+		/* x*log2e <= -65, return -1 without underflow */
 	fstp %st(1)
 	fchs
 	ret
@@ -29,7 +33,9 @@ expm1l:
 
 .global exp2l
 .type exp2l,@function
+ALIGN_ENDBRANCH64
 exp2l:
+	ENDBRANCH64
 	fldt 8(%rsp)
 1:	fld %st(0)
 	sub $16,%rsp

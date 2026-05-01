@@ -1,6 +1,10 @@
+#include "ibt.s"
+
 .global memset
 .type memset,@function
+ALIGN_ENDBRANCH64
 memset:
+	ENDBRANCH64
 	movzbq %sil,%rax
 	mov $0x101010101010101,%r8
 	imul %r8,%rax

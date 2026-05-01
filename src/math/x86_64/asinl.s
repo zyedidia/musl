@@ -1,6 +1,10 @@
+#include "ibt.s"
+
 .global asinl
 .type asinl,@function
+ALIGN_ENDBRANCH64
 asinl:
+	ENDBRANCH64
 	fldt 8(%rsp)
 1:	fld %st(0)
 	fld1

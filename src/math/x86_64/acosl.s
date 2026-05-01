@@ -1,8 +1,11 @@
-# see ../i386/acos.s
+/* see ../i386/acos.s */
+#include "ibt.s"
 
 .global acosl
 .type acosl,@function
+ALIGN_ENDBRANCH64
 acosl:
+	ENDBRANCH64
 	fldt 8(%rsp)
 1:	fld %st(0)
 	fld1

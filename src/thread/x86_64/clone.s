@@ -1,8 +1,12 @@
+#include "ibt.s"
+
 .text
 .global __clone
 .hidden __clone
 .type   __clone,@function
+ALIGN_ENDBRANCH64
 __clone:
+	ENDBRANCH64
 	xor %eax,%eax
 	mov $56,%al
 	mov %rdi,%r11

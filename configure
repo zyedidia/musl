@@ -34,6 +34,7 @@ Optional features:
   --enable-wrapper=...    build given musl toolchain wrapper [auto]
   --disable-shared        inhibit building shared library [enabled]
   --disable-static        inhibit building static library [enabled]
+  --enable-cet            enable x86-64 CET IBT instrumentation [disabled]
 
 Optional packages:
   --with-malloc=...       choose malloc implementation [mallocng]
@@ -41,6 +42,7 @@ Optional packages:
 Some influential environment variables:
   CC                      C compiler command [detected]
   CFLAGS                  C compiler flags [-Os -pipe ...]
+  ASFLAGS                 assembler flags [none]
   CROSS_COMPILE           prefix for cross compiler and tools [none]
   LIBCC                   compiler runtime library [detected]
 
@@ -120,6 +122,7 @@ CFLAGS_AUTO=
 CFLAGS_MEMOPS=
 CFLAGS_NOSSP=
 CFLAGS_TRY=
+ASFLAGS=
 LDFLAGS_AUTO=
 LDFLAGS_TRY=
 OPTIMIZE_GLOBS=
@@ -143,6 +146,7 @@ wrapper=auto
 gcc_wrapper=no
 clang_wrapper=no
 malloc_dir=mallocng
+cet=no
 
 for arg ; do
 case "$arg" in
@@ -170,6 +174,9 @@ case "$arg" in
 --enable-wrapper=gcc) wrapper=yes ; gcc_wrapper=yes ;;
 --enable-wrapper=clang) wrapper=yes ; clang_wrapper=yes ;;
 --disable-wrapper|--enable-wrapper=no) wrapper=no ;;
+--enable-cet|--enable-cet=yes|--enable-cet=ibt) cet=ibt ;;
+--disable-cet|--enable-cet=no) cet=no ;;
+--enable-cet=*) fail "$0: error: unsupported CET mode '${arg#*=}'" ;;
 --enable-gcc-wrapper|--enable-gcc-wrapper=yes) wrapper=yes ; gcc_wrapper=yes ;;
 --disable-gcc-wrapper|--enable-gcc-wrapper=no) wrapper=no ;;
 --with-malloc=*) malloc_dir=${arg#*=} ;;
@@ -185,6 +192,7 @@ CPPFLAGS=*) CPPFLAGS=${arg#*=} ;;
 LDFLAGS=*) LDFLAGS=${arg#*=} ;;
 CROSS_COMPILE=*) CROSS_COMPILE=${arg#*=} ;;
 LIBCC=*) LIBCC=${arg#*=} ;;
+ASFLAGS=*) ASFLAGS=${arg#*=} ;;
 *=*) ;;
 *) build=$arg ; target=$arg ;;
 esac
@@ -645,6 +653,13 @@ if test "$ARCH" = "x86_64" ; then
 trycppif __ILP32__ "$t" && ARCH=x32
 fi
 
+if test "$cet" = ibt ; then
+test "$ARCH" = "x86_64" || fail "$0: error: CET is only supported on x86_64"
+tryflag CFLAGS_AUTO -fcf-protection=branch \
+|| fail "$0: error: compiler does not support -fcf-protection=branch"
+CFLAGS_AUTO="$CFLAGS_AUTO -DCET"
+fi
+
 if test "$ARCH" = "arm" ; then
 if trycppif __thumb2__ "$t" ; then
 tryflag CFLAGS_AUTO -mimplicit-it=always
@@ -821,6 +836,7 @@ CFLAGS_C99FSE = $CFLAGS_C99FSE
 CFLAGS_MEMOPS = $CFLAGS_MEMOPS
 CFLAGS_NOSSP = $CFLAGS_NOSSP
 CPPFLAGS = $CPPFLAGS
+ASFLAGS = $ASFLAGS
 LDFLAGS = $LDFLAGS
 LDFLAGS_AUTO = $LDFLAGS_AUTO
 CROSS_COMPILE = $CROSS_COMPILE

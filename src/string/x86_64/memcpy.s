@@ -1,9 +1,13 @@
+#include "ibt.s"
+
 .global memcpy
 .global __memcpy_fwd
 .hidden __memcpy_fwd
 .type memcpy,@function
+ALIGN_ENDBRANCH64
 memcpy:
 __memcpy_fwd:
+	ENDBRANCH64
 	mov %rdi,%rax
 	cmp $8,%rdx
 	jc 1f

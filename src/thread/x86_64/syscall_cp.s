@@ -1,3 +1,5 @@
+#include "ibt.s"
+
 .text
 .global __cp_begin
 .hidden __cp_begin
@@ -9,7 +11,9 @@
 .global __syscall_cp_asm
 .hidden __syscall_cp_asm
 .type   __syscall_cp_asm,@function
+ALIGN_ENDBRANCH64
 __syscall_cp_asm:
+	ENDBRANCH64
 
 __cp_begin:
 	mov (%rdi),%eax

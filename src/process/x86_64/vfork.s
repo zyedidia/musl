@@ -1,6 +1,10 @@
+#include "ibt.s"
+
 .global vfork
 .type vfork,@function
+ALIGN_ENDBRANCH64
 vfork:
+	ENDBRANCH64
 	pop %rdx
 	mov $58,%eax
 	syscall
