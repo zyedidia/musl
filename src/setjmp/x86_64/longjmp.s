@@ -1,6 +1,8 @@
 /* Copyright 2011-2012 Nicholas J. Kain, licensed under standard MIT license */
 #include "ibt.s"
 
+#define SWCET 0
+
 .global _longjmp
 .global longjmp
 .type _longjmp,@function
@@ -36,5 +38,17 @@ longjmp:
 	mov 32(%rdi),%r14
 	mov 40(%rdi),%r15
 #endif
+
+#if SWCET
+    mov 48(%rdi), %rdx
+    sub $8, %rdx
+    .lfi_rewrite_disable
+    mov %rdx, %r11
+    mov 32(%r15), %rsp
+    .lfi_rewrite_enable
+    movq 56(%rdi), %rdx
+    jmp *%rdx           /* goto saved address without altering rsp */
+#else
 	mov 48(%rdi),%rsp
-	jmp *56(%rdi)           /* goto saved address without altering rsp */
+    jmp *56(%rdi)           /* goto saved address without altering rsp */
+#endif
