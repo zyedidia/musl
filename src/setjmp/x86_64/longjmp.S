@@ -14,7 +14,7 @@ longjmp:
 	mov 24(%rdi),%r13
 #ifndef __LFI__
 	mov 32(%rdi),%r14
-#endif
 	mov 40(%rdi),%r15
+#endif
 	mov 48(%rdi),%rsp
 	jmp *56(%rdi)           /* goto saved address without altering rsp */
