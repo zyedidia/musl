@@ -1,6 +1,7 @@
 /* Copyright 2011-2012 Nicholas J. Kain, licensed under standard MIT license */
 #include "ibt.s"
 
+#define SAFESTACK 1
 #define SWCET 0
 
 .global _longjmp
@@ -11,7 +12,7 @@ ALIGN_ENDBRANCH64
 _longjmp:
 longjmp:
 	ENDBRANCH64
-#if defined(CET) || defined(__LFI__)
+#if 0 && (defined(CET) || defined(__LFI__))
 	rdsspq %rdx
 	mov %rdx,%rcx
 	sub 64(%rdi),%rdx

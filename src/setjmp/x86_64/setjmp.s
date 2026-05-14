@@ -24,7 +24,7 @@ setjmp:
 	mov %rdx,48(%rdi)
 	mov (%rsp),%rdx         /* save return addr ptr for new rip */
 	mov %rdx,56(%rdi)
-#if defined(CET) || defined(__LFI__)
+#if 0 && (defined(CET) || defined(__LFI__))
 	rdsspq %rdx
 	mov %rdx,64(%rdi)
 #endif
