@@ -8,9 +8,12 @@ longjmp:
 	// IHI0055B_aapcs64.pdf 5.1.1, 5.1.2 callee saved registers
 	ldp x19, x20, [x0,#0]
 	ldp x21, x22, [x0,#16]
+#ifdef __LFI__
+	ldp x23, x24, [x0,#32]
+#endif
+#ifndef __LFI__
 	ldp x23, x24, [x0,#32]
 	ldp x25, x26, [x0,#48]
-#ifndef __LFI__
 	ldp x27, x28, [x0,#64]
 #endif
 	ldp x29, x30, [x0,#80]
